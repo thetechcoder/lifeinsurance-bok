@@ -1,0 +1,402 @@
+{
+"toc": [
+{
+"part": 1,
+"label": "Part One",
+"title": "Foundations of Insurance Theory and Law",
+"level": "CIIN Foundation",
+"chapters": [
+{
+"n": 1,
+"title": "The Nature and Purpose of Insurance",
+"text": true,
+"words": 5495,
+"q": 6,
+"mcq": 0
+},
+{
+"n": 2,
+"title": "Fundamental Principles of Insurance",
+"text": true,
+"words": 8328,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 3,
+"title": "Insurance Contract Law",
+"text": true,
+"words": 9451,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 4,
+"title": "The Nigerian Insurance Regulatory Framework",
+"text": true,
+"words": 6350,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 2,
+"label": "Part Two",
+"title": "Life Assurance Products",
+"level": "CIIN Foundation & Diploma",
+"chapters": [
+{
+"n": 5,
+"title": "Introduction to Life Assurance: Concepts and Terminology",
+"text": true,
+"words": 9879,
+"q": 11,
+"mcq": 6
+},
+{
+"n": 6,
+"title": "Life Insurance Product Types: A Comprehensive Survey",
+"text": true,
+"words": 10398,
+"q": 11,
+"mcq": 6
+},
+{
+"n": 7,
+"title": "Group Life Insurance",
+"text": true,
+"words": 8385,
+"q": 11,
+"mcq": 6
+},
+{
+"n": 8,
+"title": "Annuities and Retirement Income Products",
+"text": true,
+"words": 5660,
+"q": 11,
+"mcq": 6
+},
+{
+"n": 9,
+"title": "Takaful: Islamic Insurance in Nigeria",
+"text": true,
+"words": 7742,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 10,
+"title": "Life Insurance Product Development and Pricing",
+"text": true,
+"words": 7896,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 3,
+"label": "Part Three",
+"title": "Technical Operations: Underwriting, Claims, Actuarial Practice, and Reinsurance",
+"level": "CIIN Diploma",
+"chapters": [
+{
+"n": 11,
+"title": "Life Assurance Underwriting: Principles and Best Practices",
+"text": true,
+"words": 9540,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 12,
+"title": "Life Assurance Claims Management",
+"text": true,
+"words": 9080,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 13,
+"title": "Actuarial Concepts for Insurance Professionals",
+"text": true,
+"words": 8517,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 14,
+"title": "Reinsurance in Life Insurance",
+"text": true,
+"words": 7836,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 15,
+"title": "Enterprise Risk Management for Life Insurance Companies",
+"text": true,
+"words": 9224,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 4,
+"label": "Part Four",
+"title": "Distribution, Sales, Marketing, and Customer Experience",
+"level": "CIIN Diploma & Associateship",
+"chapters": [
+{
+"n": 16,
+"title": "Distribution Channels and Intermediaries",
+"text": true,
+"words": 7729,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 17,
+"title": "Insurance Sales Agencies: Structure, Management, and Best Practices",
+"text": true,
+"words": 7275,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 18,
+"title": "Insurance Brokerage in Nigeria",
+"text": true,
+"words": 8065,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 19,
+"title": "Product Marketing: Strategy, Execution, and the Nigerian Market",
+"text": true,
+"words": 7644,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 20,
+"title": "Customer Service Excellence and Customer Acquisition",
+"text": true,
+"words": 7575,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 21,
+"title": "Market Conduct, Ethics, and Consumer Protection",
+"text": true,
+"words": 8128,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 22,
+"title": "Micro-Insurance and Financial Inclusion",
+"text": true,
+"words": 7890,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 5,
+"label": "Part Five",
+"title": "Financial Management, Governance, and Strategy",
+"level": "CIIN Associateship",
+"chapters": [
+{
+"n": 23,
+"title": "Insurance Funds: Investment and Asset-Liability Management",
+"text": true,
+"words": 7268,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 24,
+"title": "Corporate Governance, Solvency, and Financial Reporting",
+"text": true,
+"words": 6938,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 25,
+"title": "Life Insurance and Personal Financial Planning",
+"text": true,
+"words": 6574,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 26,
+"title": "Revenue Architecture and Income Stream Management",
+"text": true,
+"words": 6724,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 27,
+"title": "Strategy and Research Function in a Life Insurance Company",
+"text": true,
+"words": 7613,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 6,
+"label": "Part Six",
+"title": "Technology, Data, and Digital Transformation",
+"level": "CIIN Associateship · Advanced Practice",
+"chapters": [
+{
+"n": 28,
+"title": "Insurtech and Digital Innovation in Nigerian Life Insurance",
+"text": true,
+"words": 6793,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 29,
+"title": "Policy Administration Systems (PAS) for Life Insurance",
+"text": true,
+"words": 7959,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 30,
+"title": "Leveraging Technology to Drive Sales, Operations, and Customer Service",
+"text": true,
+"words": 6981,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 31,
+"title": "Artificial Intelligence: Use Cases in Life Insurance",
+"text": true,
+"words": 6720,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 32,
+"title": "Data Privacy in the Life Insurance Industry",
+"text": true,
+"words": 7120,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 33,
+"title": "Emerging Risks, Compulsory Insurance, and the Industry Outlook",
+"text": true,
+"words": 6480,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 7,
+"label": "Part Seven",
+"title": "The Life Insurance Enterprise",
+"level": "Advanced Practice · Operational & Leaders",
+"chapters": [
+{
+"n": 34,
+"title": "Structuring the Life Insurance Organization",
+"text": true,
+"words": 7332,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 35,
+"title": "Human Capital, Culture, and Professional Development",
+"text": true,
+"words": 7501,
+"q": 10,
+"mcq": 5
+},
+{
+"n": 36,
+"title": "Accessing Industry Research, Data, and Competitive Intelligence",
+"text": true,
+"words": 8163,
+"q": 10,
+"mcq": 5
+}
+]
+},
+{
+"part": 8,
+"label": "Part Eight",
+"title": "Reference, Glossary, and Examination Preparation",
+"level": "All CIIN Levels",
+"chapters": [
+{
+"n": 37,
+"title": "Comprehensive Glossary of Insurance and Life Assurance Terms",
+"text": true,
+"words": 13379,
+"q": 0,
+"mcq": 0
+},
+{
+"n": 38,
+"title": "CIIN Examination Preparation Guide",
+"text": true,
+"words": 6340,
+"q": 0,
+"mcq": 0
+},
+{
+"n": 39,
+"title": "Regulatory Reference Index and Bibliography",
+"text": true,
+"words": 6572,
+"q": 0,
+"mcq": 0
+}
+]
+}
+],
+"docs": [
+{
+"key": "front",
+"title": "Front Matter",
+"words": 3220
+},
+{
+"key": "app1",
+"title": "Appendix 1 — Technical Reference Tables",
+"words": 4192
+},
+{
+"key": "app2",
+"title": "Appendix 2 — Specimen Documents",
+"words": 6448
+},
+{
+"key": "app3",
+"title": "Appendix 3 — Regulatory Instruments Log",
+"words": 6355
+}
+]
+}
