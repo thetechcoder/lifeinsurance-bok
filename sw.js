@@ -1,4 +1,4 @@
-const VERSION = '7a88a1f43a';
+const VERSION = '7a33a3e535';
 const CACHE = 'lin-guide-' + VERSION;
 const FILES = [
  "./",

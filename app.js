@@ -95,7 +95,7 @@ function fixStrong(h) {
   const o = (h.match(/<strong>/g) || []).length, c = (h.match(/<\/strong>/g) || []).length;
   return c > o ? h.replace('</strong>', '') : h;
 }
-const STEP_RX = /^(?:<strong>\s*)?(Stage|Step|Tier|Gate|Phase)\s*(\d+)\s*[—–:\-.]*\s*([^.:<]{2,90}?)\s*[.:]\s*(?:<\/strong>)?\s*([\s\S]*)$/i;
+const STEP_RX = /^(?:<strong>\s*)?(Stage|Step|Tier|Gate|Phase)\s*(\d+)\s*[\u2014\u2013:\-.]*\s*([^.:<]{2,90}?)\s*[.:]\s*(?:<\/strong>)?\s*([\s\S]*)$/i;
 let LOOSE = false;
 function stepOf(h) {
   const t = String(h).trim(), m = t.match(STEP_RX);
@@ -129,7 +129,7 @@ function flowBuild(b) {
     else intro.push(rb([x]));
   });
   if (steps.length < 3) return null;
-  const title = b.title.replace(/^Process\s*[—–-]\s*/i, '');
+  const title = b.title.replace(/^Process\s*[:\u2014\u2013-]\s*/i, '');
   const route = steps.map((s, i) => `<span style="--i:${i}">${esc(s.title)}</span>${i < steps.length - 1 ? `<i style="--i:${i}" aria-hidden="true">›</i>` : ''}`).join('');
   const lis = steps.map((s, i) => `<li class="st" style="--i:${i}"><span class="dot" aria-hidden="true">${i + 1}</span><h4>${esc(s.title)}</h4><div class="sb"><p>${s.body}</p>${s.extra}</div></li>`).join('');
   return `<section class="flow" style="--n:${steps.length}" aria-label="${esc(title)}"><div class="ft">${esc(title)}</div>${intro.join('')}<div class="route" aria-hidden="true">${route}</div><ol class="steps">${lis}</ol>${outro.join('')}</section>`;
@@ -155,7 +155,7 @@ function resetSheet(after) {
   const s = sheet('Reset progress', `<p>Your progress is stored on this device only. Choose what to clear.</p>
     <div class="opt-r"><button class="btn ghost" data-k="read">Reading progress</button><button class="btn ghost" data-k="prac">Practice results</button><button class="btn" data-k="all">Everything</button><button class="btn ghost" data-k="x">Cancel</button></div>`);
   const dlg = s.querySelector('[role=dialog]');
-  const KEYS = { read: ['read', 'last', 'scr'], prac: ['res', 'self', 'cards', 'mocks', 'mocklast', 'mockrun'], all: ['read', 'last', 'scr', 'res', 'self', 'cards', 'mocks', 'mocklast', 'mockrun'] };
+  const KEYS = { read: ['read', 'last', 'scr'], prac: ['res', 'self', 'cards', 'mocks', 'mocklast', 'mockrun'], all: ['read', 'last', 'scr', 'res', 'self', 'cards', 'mocks', 'mocklast', 'mockrun', 'plan'] };
   const WHAT = { read: 'reading progress (chapters marked as read and where you stopped)', prac: 'all practice results, mock exam history, flashcard marks and self-ratings', all: 'all reading progress and all practice results' };
   s.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
     const k = b.dataset.k; if (k === 'x') return s.remove();
@@ -376,7 +376,7 @@ function renderSession() {
       document.querySelectorAll('.opt').forEach(b => { b.disabled = true; if (b.dataset.k === q.correct) b.classList.add('ok'); else if (b.dataset.k === k) b.classList.add('no'); });
       const R = LS.get('res', {}); R[q.id] = { ok, t: Date.now() }; LS.set('res', R);
       SES.log[SES.i] = ok ? 'ok' : 'bad';
-      document.getElementById('after').innerHTML = `<div class="ans${ok ? '' : ' wrong'}"><div class="lab">${ok ? 'Correct' : 'Not quite'} — the answer is (${esc(q.correct)})</div>${esc(q.answer)}</div>
+      document.getElementById('after').innerHTML = `<div class="ans${ok ? '' : ' wrong'}"><div class="lab">${ok ? 'Correct' : 'Not quite'}: the answer is (${esc(q.correct)})</div>${esc(q.answer)}</div>
         <div class="why"><div class="lab">Why</div>${blocksSimple(q.why)}</div>${nextBtn()}`;
       document.getElementById('next').onclick = next; document.getElementById('next').focus({ preventScroll: true });
     });
@@ -454,6 +454,83 @@ async function viewSearch(qs) {
 }
 
 /* ---------- progress ---------- */
+/* ---------- backup and restore ---------- */
+const BK_TYPES = { read: 'array', mocks: 'array', last: 'object', scr: 'object', res: 'object', self: 'object', cards: 'object', mocklast: 'object', setup: 'object', mocksetup: 'object', cardsetup: 'object', plan: 'object', fs: 'number', theme: 'string' };
+const bkType = v => Array.isArray(v) ? 'array' : v === null ? 'null' : typeof v;
+function backupBuild() {
+  const data = {}; for (const k of Object.keys(BK_TYPES)) { const v = LS.get(k, undefined); if (v !== undefined) data[k] = v; }
+  return { app: 'LifeInsuranceBOK', kind: 'backup', version: 1, exported: new Date().toISOString(), data };
+}
+function backupFile() {
+  const name = 'LifeInsuranceBOK-backup-' + isoDay(new Date()) + '.json';
+  return new File([JSON.stringify(backupBuild(), null, 1)], name, { type: 'application/json' });
+}
+function backupParse(text) {
+  if (text.length > 5e6) throw new Error('This file is too large to be a backup.');
+  let o; try { o = JSON.parse(text); } catch (e) { throw new Error('This is not a readable backup file.'); }
+  if (!o || o.app !== 'LifeInsuranceBOK' || o.kind !== 'backup' || typeof o.data !== 'object' || o.data === null) throw new Error('This file is not a Life InsuranceBOK backup.');
+  if (o.version > 1) throw new Error('This backup comes from a newer version of the app. Update the app and try again.');
+  const data = {};
+  for (const [k, v] of Object.entries(o.data)) if (BK_TYPES[k] && bkType(v) === BK_TYPES[k]) data[k] = v;
+  if (!Object.keys(data).length) throw new Error('The backup has no progress or plan in it.');
+  return { exported: o.exported, data };
+}
+function backupMerge(cur, inc) {
+  const plan = cur.plan && inc.plan ? (() => {
+    const a = planNorm(cur.plan), b = planNorm(inc.plan), log = Object.assign({}, a.log);
+    for (const [k, v] of Object.entries(b.log)) log[k] = Math.max(log[k] || 0, v);
+    const missed = Object.assign({}, a.missed, b.missed); for (const k of Object.keys(log)) delete missed[k];
+    return Object.assign({}, b, { log, missed });
+  })() : (inc.plan || cur.plan);
+  const mk = new Map(); for (const m of [...(cur.mocks || []), ...(inc.mocks || [])]) mk.set(m.ts, m);
+  const out = {
+    read: [...new Set([...(cur.read || []), ...(inc.read || [])])],
+    res: Object.assign({}, cur.res, inc.res), self: Object.assign({}, cur.self, inc.self), cards: Object.assign({}, cur.cards, inc.cards),
+    scr: (() => { const s = Object.assign({}, cur.scr); for (const [k, v] of Object.entries(inc.scr || {})) s[k] = Math.max(s[k] || 0, v); return s; })(),
+    mocks: [...mk.values()].sort((x, y) => (y.ts || 0) - (x.ts || 0)).slice(0, 20)
+  };
+  if (plan) out.plan = plan;
+  return out;
+}
+function backupSummary(d) {
+  const q = Object.keys(d.res || {}).length + Object.keys(d.self || {}).length;
+  const bits = [`${(d.read || []).length} chapters read`, `${q} questions attempted`, `${Object.keys(d.cards || {}).length} flashcards marked`, `${(d.mocks || []).length} mock exams`];
+  if (d.plan) bits.push('a study plan with ' + Object.keys(d.plan.log || {}).length + ' days logged');
+  return bits.join(', ');
+}
+function backupSheet() {
+  const hasShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.json', { type: 'application/json' })] }));
+  const cur = backupBuild().data, curSum = backupSummary(cur);
+  const s = sheet('Backup and restore', `<p><b>On this device now:</b> ${esc(curSum)}.</p>
+    <h3 style="margin-top:14px">Back up</h3><p>Save a file with your reading, practice results, flashcards, mock exams and study plan. Your app PIN is not included.</p>
+    <div class="opt-r"><button class="btn" id="bkd">Download backup</button>${hasShare ? '<button class="btn ghost" id="bks">Share or save to Files</button>' : ''}</div>
+    <h3 style="margin-top:14px">Restore</h3><p>Choose a backup file made by this app, for example from your other device.</p>
+    <div class="opt-r"><label class="btn ghost" style="text-align:center;cursor:pointer" for="bkf">Choose backup file</label><input type="file" id="bkf" accept=".json,application/json" style="position:absolute;left:-9999px"></div>
+    <div id="bkr" role="status"></div><div class="opt-r"><button class="btn ghost" id="bkx">Close</button></div>`);
+  s.querySelector('#bkx').onclick = () => s.remove();
+  s.querySelector('#bkd').onclick = () => {
+    const f = backupFile(), a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); toast('Backup saved');
+  };
+  const sh = s.querySelector('#bks'); if (sh) sh.onclick = async () => { try { await navigator.share({ files: [backupFile()], title: 'Life InsuranceBOK backup' }); } catch (e) {} };
+  const box = s.querySelector('#bkr');
+  s.querySelector('#bkf').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    let B; try { B = backupParse(await f.text()); } catch (err) { box.innerHTML = `<p style="color:var(--bad)">${esc(err.message)}</p>`; return; }
+    const when = B.exported ? new Date(B.exported).toLocaleString() : 'unknown date';
+    box.innerHTML = `<p><b>Backup from ${esc(when)}:</b> ${esc(backupSummary(B.data))}.</p>
+      <div class="opt-r"><button class="btn" id="bkm">Merge with this device</button><button class="btn danger" id="bkrep">Replace this device’s data</button></div>
+      <p><b>Merge</b> keeps everything on both devices: chapters read are combined, days logged take the larger time, and the backup’s answers win if the same question appears on both. <b>Replace</b> makes this device match the backup exactly.</p>`;
+    const done = n => { toast('Restored'); setTimeout(() => location.reload(), 600); };
+    box.querySelector('#bkm').onclick = () => { const m = backupMerge(cur, B.data); for (const [k, v] of Object.entries(m)) LS.set(k, v); for (const k of ['setup', 'mocksetup', 'cardsetup', 'fs', 'theme', 'last', 'mocklast']) if (!(k in cur) && k in B.data) LS.set(k, B.data[k]); done(); };
+    box.querySelector('#bkrep').onclick = () => {
+      box.innerHTML = '<p>This replaces your reading, practice results, flashcards, mocks and study plan on this device with the backup. It cannot be undone.</p><div class="opt-r"><button class="btn danger" id="bky">Yes, replace</button><button class="btn ghost" id="bkn">Cancel</button></div>';
+      box.querySelector('#bkn').onclick = () => s.remove();
+      box.querySelector('#bky').onclick = () => { for (const k of Object.keys(BK_TYPES)) { try { localStorage.removeItem('lin:' + k); } catch (e) {} } for (const [k, v] of Object.entries(B.data)) LS.set(k, v); done(); };
+    };
+  };
+}
+
 function viewProgress() {
   setTab('progress'); window.onscroll = null;
   const read = new Set(LS.get('read', [])), R = LS.get('res', {}), S = LS.get('self', {});
@@ -475,9 +552,10 @@ function viewProgress() {
   h += `</section><section class="card"><h2>Reading by part</h2><div class="bars">` + INDEX.toc.map(p => {
     const r = p.chapters.filter(c => c.text); const d = r.filter(c => read.has(c.n)).length;
     return `<div class="r"><span>${p.part}</span><div class="tr"><i style="width:${pct(d, r.length)}%"></i></div><span>${d}/${r.length}</span></div>`;
-  }).join('') + `</div></section><div class="actions"><button class="btn ghost" id="reset">Reset progress</button><button class="btn ghost" id="pinbtn">App PIN: ${pinOn() ? 'On' : 'Off'}</button></div>`;
+  }).join('') + `</div></section><div class="actions"><button class="btn ghost" id="reset">Reset progress</button><button class="btn ghost" id="pinbtn">App PIN: ${pinOn() ? 'On' : 'Off'}</button><button class="btn ghost" id="bkbtn">Backup and restore</button></div>`;
   app.innerHTML = h;
   document.getElementById('pinbtn').onclick = () => pinSheet(viewProgress);
+  document.getElementById('bkbtn').onclick = backupSheet;
   document.getElementById('reset').onclick = () => resetSheet(viewProgress);
 }
 
@@ -787,6 +865,258 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- router ---------- */
+
+/* ---------- study planner ---------- */
+const PLAN_SCOPES = {
+  foundation: { label: 'Foundation', parts: [1, 2], rev: [38] },
+  diploma: { label: 'Diploma', parts: [3, 4], rev: [38] },
+  associateship: { label: 'Associateship', parts: [5, 6, 7], rev: [38] },
+  all: { label: 'Whole book', parts: [1, 2, 3, 4, 5, 6, 7], rev: [38, 39] }
+};
+const WPM = 120, MCQ_MIN = 1.5, WRITTEN_MIN = 12, CARD_SHARE = 0.15, MOCK_MIN = 120;
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const isoDay = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const dayOf = s => new Date(s + 'T00:00:00');
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const fmtD = d => d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+const fmtDW = d => d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtFull = d => d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+function fmtH(min) { const h = min / 60; return h >= 10 ? Math.round(h) + ' h' : (Math.round(h * 10) / 10) + ' h'; }
+function fmtM(min) {
+  min = Math.round(min); if (min < 60) return min + ' min';
+  const h = Math.floor(min / 60), r = min % 60; return r ? h + ' h ' + r + ' min' : h + ' h';
+}
+const todayMid = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+function chPlan(c) { return { n: c.n, title: c.title, q: c.q, mcq: c.mcq, read: Math.round(c.words / WPM), prac: Math.round(c.mcq * MCQ_MIN + (c.q - c.mcq) * WRITTEN_MIN) }; }
+function planNorm(cfg) {
+  const c = Object.assign({ scope: 'foundation', hpw: 6, days: [1, 2, 3, 4, 5, 6], log: {}, missed: {}, exam: '' }, cfg || {});
+  if (!c.days || !c.days.length) c.days = [1, 2, 3, 4, 5, 6];
+  return c;
+}
+/* ordered work items; w is minutes of study budget (content plus its share of flashcards and review) */
+function planItems(cfg) {
+  const sc = PLAN_SCOPES[cfg.scope] || PLAN_SCOPES.foundation;
+  const chs = INDEX.toc.filter(p => sc.parts.includes(p.part)).flatMap(p => p.chapters).filter(c => c.text).map(chPlan);
+  const rev = allChapters().filter(c => sc.rev.includes(c.n) && c.text).map(chPlan);
+  const items = chs.map(c => ({ kind: 'ch', n: c.n, short: 'Ch ' + c.n, label: c.title, w: (c.read + c.prac) / (1 - CARD_SHARE) }));
+  items.push({ kind: 'rev', short: 'Revision', label: 'Mock exam 1, redo missed questions, Chapter ' + sc.rev.join(' and '), w: rev.reduce((a, c) => a + c.read, 0) + MOCK_MIN });
+  items.push({ kind: 'fin', short: 'Final mock', label: 'Mock exam 2 and a last flashcard pass', w: MOCK_MIN });
+  return items;
+}
+/* ideal: the original plan from the start date, ignoring logged time and missed days */
+function planSchedule(cfg, today, ideal) {
+  const items = planItems(cfg), days = cfg.days, B = cfg.hpw * 60 / days.length;
+  const log = ideal ? {} : cfg.log, missed = ideal ? {} : cfg.missed;
+  const start = dayOf(cfg.start), from = ideal || today <= start ? start : today, todayKey = isoDay(today);
+  let done = Object.values(log).reduce((a, b) => a + b, 0), idx = 0; const doneItems = [];
+  while (idx < items.length && done >= items[idx].w - 0.01) { done -= items[idx].w; doneItems.push(items[idx]); idx++; }
+  const rem = items.slice(idx).map((it, k) => ({ it, left: it.w - (k === 0 ? done : 0) }));
+  const total = items.reduce((a, c) => a + c.w, 0), out = []; let q = 0, d = new Date(from), guard = 0;
+  while (q < rem.length && guard++ < 1200) {
+    const key = isoDay(d);
+    let cap = days.includes(d.getDay()) && !missed[key] ? (!ideal && key === todayKey ? Math.max(0, B - (log[key] || 0)) : B) : 0;
+    const e = { key, d: new Date(d), mins: 0, parts: [] };
+    while (cap > 0.01 && q < rem.length) {
+      const take = Math.min(cap, rem[q].left);
+      e.parts.push({ it: rem[q].it, mins: take }); e.mins += take; cap -= take; rem[q].left -= take;
+      if (rem[q].left <= 0.01) q++;
+    }
+    if (e.parts.length) out.push(e);
+    d = addDays(d, 1);
+  }
+  const doneMin = Object.values(log).reduce((a, b) => a + b, 0);
+  return { items, doneItems, out, B, total, doneMin, finish: q >= rem.length && out.length ? out[out.length - 1].d : (q >= rem.length ? null : undefined), remaining: Math.max(0, total - doneMin), partialItem: rem.length ? rem[0].it : null };
+}
+function planSummary(cfg) {
+  const t = todayMid(), S = planSchedule(cfg, t, false), I = planSchedule(cfg, t, true), start = dayOf(cfg.start);
+  const yest = addDays(t, -1); let planned = 0;
+  for (let d = new Date(start); d <= yest; d = addDays(d, 1)) if (cfg.days.includes(d.getDay())) planned += S.B;
+  const actual = Object.entries(cfg.log).filter(([k]) => k <= isoDay(t)).reduce((a, [, v]) => a + v, 0);
+  return { t, S, I, start, planned, actual };
+}
+function weekRows(cfg, P) {
+  const rows = [], WK = 7 * 86400000, cur = Math.max(0, Math.floor((P.t - P.start) / WK));
+  for (let w = 0; w <= cur; w++) {
+    const a = addDays(P.start, w * 7); let pl = 0, ac = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(a, i), k = isoDay(d);
+      if (d < P.t && cfg.days.includes(d.getDay())) pl += P.S.B;
+      if (d <= P.t) ac += cfg.log[k] || 0;
+    }
+    rows.push({ w, from: a, to: addDays(a, 6), pl, ac });
+  }
+  return rows;
+}
+function planIcs(P, cfg) {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const ymd = d => isoDay(d).replace(/-/g, ''), clean = t => String(t).replace(/[,;\\\n]/g, ' ');
+  let s = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Life InsuranceBOK//Study plan//EN\r\n';
+  P.S.out.forEach(e => {
+    s += 'BEGIN:VEVENT\r\nUID:bok-' + cfg.start + '-' + e.key + '@lifeinsurancebok\r\nDTSTAMP:' + stamp + '\r\nDTSTART;VALUE=DATE:' + ymd(e.d) + '\r\nDTEND;VALUE=DATE:' + ymd(addDays(e.d, 1)) + '\r\nSUMMARY:BOK study ' + fmtM(e.mins) + '\r\nDESCRIPTION:' + clean(e.parts.map(p => p.it.short + ' ' + fmtM(p.mins)).join('; ')) + '\r\nEND:VEVENT\r\n';
+  });
+  if (cfg.exam) s += 'BEGIN:VEVENT\r\nUID:bok-exam-' + cfg.exam + '@lifeinsurancebok\r\nDTSTAMP:' + stamp + '\r\nDTSTART;VALUE=DATE:' + ymd(dayOf(cfg.exam)) + '\r\nDTEND;VALUE=DATE:' + ymd(addDays(dayOf(cfg.exam), 1)) + '\r\nSUMMARY:CIIN exam\r\nEND:VEVENT\r\n';
+  s += 'END:VCALENDAR\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([s], { type: 'text/calendar' })); a.download = 'LifeInsuranceBOK-study-plan.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function partRow(p) {
+  const it = p.it;
+  return `<li><div>${it.kind === 'ch' ? `<a href="#/ch/${it.n}"><b>${it.short}.</b> ${esc(it.label)}</a>` : `<b>${esc(it.short)}</b> <span class="muted" style="display:inline">${esc(it.label)}</span>`} <span class="muted" style="display:inline">${fmtM(p.mins)}</span></div></li>`;
+}
+function planEstimateHtml(cfg) {
+  const t = todayMid(), I = planSchedule(cfg, t, true), n = I.out.length;
+  if (!I.finish) return '';
+  const weeks = Math.ceil((I.finish - dayOf(cfg.start)) / 604800000 + 1 / 7);
+  let h = `<div class="note ok" role="status"><b>Estimated finish: ${fmtFull(I.finish)}</b><br>${n} study days over about ${weeks} week${weeks > 1 ? 's' : ''}, about ${fmtM(I.B)} on each study day. That covers all chapters, two mock exams and flashcards.</div>`;
+  if (cfg.exam) {
+    const ex = dayOf(cfg.exam), gap = Math.round((ex - I.finish) / 86400000);
+    if (gap < 0) {
+      const days = cfg.days.length; let need = null;
+      for (let h2 = cfg.hpw; h2 <= 40; h2 += 0.5) { const c2 = Object.assign({}, cfg, { hpw: h2 }), f = planSchedule(c2, t, true).finish; if (f && f <= ex) { need = h2; break; } }
+      h += `<div class="note warn">That is ${-gap} day${gap < -1 ? 's' : ''} after your exam on ${fmtD(ex)}.${need ? ` To finish before it, study about ${need} hours a week.` : ' Choose a later exam date or an earlier start.'}</div>`;
+    } else h += `<div class="note">That is ${gap} day${gap === 1 ? '' : 's'} before your exam on ${fmtD(ex)}.</div>`;
+  }
+  return h;
+}
+function planSetup(cfg0) {
+  setTab('plan'); window.onscroll = null;
+  const editing = !!cfg0, st = planNorm(cfg0 || { start: isoDay(todayMid()), hpw: 6 });
+  const draw = () => {
+    app.innerHTML = `<header class="top"><h1>${editing ? 'Change your plan' : 'Study plan'}</h1><p>Choose a level, a start date and the days you can study. The finish date updates as you change anything.</p></header>
+    <div class="card"><div class="fld"><label>Level</label><div class="chips" id="plv">${Object.keys(PLAN_SCOPES).map(k => `<button class="chip" data-k="${k}" aria-pressed="${st.scope === k}">${PLAN_SCOPES[k].label}</button>`).join('')}</div></div>
+    <div class="fld"><label for="pst">Start date</label><input type="date" id="pst" value="${esc(st.start)}"></div>
+    <div class="fld"><label>Days you can study</label><div class="chips" id="pdy">${[1, 2, 3, 4, 5, 6, 0].map(i => `<button class="chip" data-d="${i}" aria-pressed="${st.days.includes(i)}">${DOW[i]}</button>`).join('')}</div></div>
+    <div class="fld"><label for="php">Hours each week</label><select id="php">${[2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map(h => `<option${h === st.hpw ? ' selected' : ''} value="${h}">${h} hours</option>`).join('')}</select></div>
+    <div class="fld"><label for="pex">Exam date (optional)</label><input type="date" id="pex" value="${esc(st.exam || '')}"></div>
+    <div id="pest"></div>
+    <p class="muted" style="font-size:.84rem">Times assume about ${WPM} words a minute for study reading, ${MCQ_MIN} minutes per multiple-choice question and ${WRITTEN_MIN} minutes per written question, plus ${Math.round(CARD_SHARE * 100)}% for flashcards and review and two ${MOCK_MIN / 60}-hour mock exams.</p>
+    <div class="actions"><button class="btn" id="pgo">${editing ? 'Save changes' : 'Start my plan'}</button>${editing ? '<a class="btn ghost" href="#/plan">Cancel</a>' : ''}</div><p class="muted" id="pmsg" role="status"></p></div>`;
+    const est = () => { document.getElementById('pest').innerHTML = st.days.length && st.start ? planEstimateHtml(st) : ''; };
+    est();
+    document.querySelectorAll('#plv .chip').forEach(b => b.onclick = () => { st.scope = b.dataset.k; document.querySelectorAll('#plv .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); est(); });
+    document.querySelectorAll('#pdy .chip').forEach(b => b.onclick = () => {
+      const i = +b.dataset.d, on = st.days.includes(i);
+      if (on && st.days.length === 1) { document.getElementById('pmsg').textContent = 'Keep at least one study day.'; return; }
+      st.days = on ? st.days.filter(x => x !== i) : [...st.days, i]; b.setAttribute('aria-pressed', !on); est();
+    });
+    document.getElementById('pst').onchange = e => { if (e.target.value) st.start = e.target.value; est(); };
+    document.getElementById('pex').onchange = e => { st.exam = e.target.value; est(); };
+    document.getElementById('php').onchange = e => { st.hpw = +e.target.value; est(); };
+    document.getElementById('pgo').onclick = () => {
+      if (!st.start) { document.getElementById('pmsg').textContent = 'Choose a start date.'; return; }
+      LS.set('plan', { scope: st.scope, start: st.start, hpw: st.hpw, days: st.days.slice().sort(), exam: st.exam || '', log: st.log, missed: st.missed });
+      if (location.hash === '#/plan') viewPlan(); else location.hash = '#/plan';
+    };
+  };
+  draw();
+}
+function daySheet(cfg, key) {
+  const d = dayOf(key), sched = cfg.days.includes(d.getDay()), B = cfg.hpw * 60 / cfg.days.length;
+  const cur = cfg.log[key] || 0, isMissed = !!cfg.missed[key], isPast = key <= isoDay(todayMid());
+  const s = sheet(fmtFull(d), `<p>${sched ? 'Planned: ' + fmtM(B) + '.' : 'Not a planned study day.'}${cur ? ' Logged: ' + fmtM(cur) + '.' : ''}${isMissed ? ' Marked as missed.' : ''}</p>
+    ${isPast ? `<div class="fld"><label for="dsm">Minutes you studied</label><input type="number" id="dsm" min="0" max="900" step="5" value="${cur || Math.round(B / 5) * 5}" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:100%;background:var(--surface);color:var(--ink)"></div>` : '<p>This day is in the future, so you can only mark it as missed or a day off.</p>'}
+    <div class="opt-r">${isPast ? '<button class="btn" id="dsv">Save time studied</button>' : ''}<button class="btn ghost" id="dms">${isMissed ? 'Missed: already marked' : 'Mark as missed or day off'}</button>${cur || isMissed ? '<button class="btn ghost" id="dcl">Clear this day</button>' : ''}<button class="btn ghost" id="dx">Close</button></div>`);
+  const save = c => { LS.set('plan', c); s.remove(); viewPlan(); };
+  s.querySelector('#dx').onclick = () => s.remove();
+  const v = s.querySelector('#dsv'); if (v) v.onclick = () => {
+    const m = Math.max(0, Math.min(900, Math.round(+s.querySelector('#dsm').value || 0))), c = planNorm(cfg);
+    delete c.missed[key]; if (m > 0) c.log[key] = m; else delete c.log[key]; save(c);
+  };
+  s.querySelector('#dms').onclick = () => { const c = planNorm(cfg); delete c.log[key]; c.missed[key] = true; save(c); };
+  const cl = s.querySelector('#dcl'); if (cl) cl.onclick = () => { const c = planNorm(cfg); delete c.log[key]; delete c.missed[key]; save(c); };
+}
+function viewPlan(edit) {
+  setTab('plan'); window.onscroll = null;
+  const raw = LS.get('plan', null);
+  if (!raw || edit) return planSetup(raw ? planNorm(raw) : null);
+  const cfg = planNorm(raw), P = planSummary(cfg), S = P.S, I = P.I, tk = isoDay(P.t), B = S.B;
+  const chTotal = S.items.filter(i => i.kind === 'ch').length, chDone = S.doneItems.filter(i => i.kind === 'ch').length;
+  const pct = Math.min(100, Math.round(S.doneMin / S.total * 100));
+  const started = P.t >= P.start, diff = P.actual - P.planned;
+  let track;
+  if (!started) track = ['', `Your plan starts on ${fmtFull(P.start)}.`];
+  else if (!S.out.length && S.finish === null) track = ['ok', 'You have finished every item in the plan.'];
+  else if (diff < -B * 0.5) track = ['warn', `You are ${fmtM(-diff)} behind where you planned to be. The schedule below has moved your finish date to match.`];
+  else if (diff > B * 0.5) track = ['ok', `You are ${fmtM(diff)} ahead of plan.`];
+  else track = ['ok', 'You are on track.'];
+  const slip = S.finish && I.finish ? Math.round((S.finish - I.finish) / 86400000) : 0;
+  const slipTxt = !S.finish ? '' : slip > 0 ? `${slip} day${slip > 1 ? 's' : ''} later than the original ${fmtD(I.finish)}` : slip < 0 ? `${-slip} day${slip < -1 ? 's' : ''} earlier than the original ${fmtD(I.finish)}` : `as originally planned`;
+  let examNote = '';
+  if (cfg.exam && S.finish) {
+    const ex = dayOf(cfg.exam), gap = Math.round((ex - S.finish) / 86400000);
+    if (gap < 0) {
+      const left = S.out.filter(e => e.d <= ex).length, daysAfter = cfg.days.length;
+      const need = left ? Math.ceil(S.remaining / left * daysAfter / 60 * 2) / 2 : null;
+      examNote = `<div class="note warn">At this pace you finish ${-gap} day${gap < -1 ? 's' : ''} after your exam on ${fmtD(ex)}.${need ? ` To finish before it from now on, study about ${need} hours a week, or mark fewer days as missed.` : ''}</div>`;
+    } else examNote = `<div class="note">You finish ${gap} day${gap === 1 ? '' : 's'} before your exam on ${fmtD(ex)}.</div>`;
+  } else if (cfg.exam && !S.finish && S.finish === null) examNote = '';
+  /* today */
+  const te = S.out.find(e => e.key === tk), isStudyToday = cfg.days.includes(P.t.getDay()), missedToday = !!cfg.missed[tk], loggedToday = cfg.log[tk] || 0;
+  let today = '';
+  if (started) {
+    let body;
+    if (missedToday) body = `<p class="muted">Marked as missed. Your schedule has been moved on.</p>`;
+    else if (!isStudyToday && !loggedToday) body = `<p class="muted">Not a planned study day. Study anyway and log it to finish sooner.</p>`;
+    else body = (te ? `<ul class="pl">${te.parts.map(p => partRow(p)).join('')}</ul>` : `<p class="muted">Today’s plan is done.</p>`);
+    today = `<div class="card"><h2 style="margin:0 0 4px;font:700 1.05rem var(--sans)">Today, ${fmtDW(P.t)}</h2><p class="muted" style="margin:0">${isStudyToday && !missedToday ? 'Planned ' + fmtM(B) : ''}${loggedToday ? (isStudyToday && !missedToday ? ' · ' : '') + 'Logged ' + fmtM(loggedToday) : ''}</p>${body}<div class="actions"><button class="btn" id="tlog">Log time</button><button class="btn ghost" id="tmis">${missedToday ? 'Undo missed' : 'I missed today'}</button></div></div>`;
+  }
+  /* recent days that still need recording */
+  const rec = []; for (let d = addDays(P.t, -1); d >= P.start && rec.length < 7; d = addDays(d, -1)) {
+    const k = isoDay(d), st2 = cfg.days.includes(d.getDay());
+    if (st2 || cfg.log[k] || cfg.missed[k]) rec.push({ d, k, st2 });
+  }
+  const unrec = rec.filter(r => r.st2 && !cfg.log[r.k] && !cfg.missed[r.k]).length;
+  const recent = rec.length ? `<div class="card"><h2 style="margin:0 0 2px;font:700 1.05rem var(--sans)">Recent days</h2><p class="muted" style="margin:0 0 6px;font-size:.88rem">${unrec ? unrec + ' planned day' + (unrec > 1 ? 's' : '') + ' not recorded. Unrecorded days count as no study, so record them to keep your schedule accurate.' : 'Tap a day to change what you recorded.'}</p><ul class="dl">${rec.map(r => {
+    const l = cfg.log[r.k], m = cfg.missed[r.k];
+    const tag = l ? `<span class="tg ok">${fmtM(l)}</span>` : m ? '<span class="tg bad">Missed</span>' : '<span class="tg">Not recorded</span>';
+    return `<li><button data-day="${r.k}"><span>${fmtDW(r.d)}<small>${r.st2 ? 'Planned ' + fmtM(B) : 'Extra day'}</small></span>${tag}</button></li>`;
+  }).join('')}</ul></div>` : '';
+  /* actual vs planned by week */
+  const wr = weekRows(cfg, P), mx = Math.max(1, ...wr.map(r => Math.max(r.pl, r.ac)));
+  const weeksCard = started ? `<div class="card"><h2 style="margin:0 0 6px;font:700 1.05rem var(--sans)">Planned and actual time</h2>${wr.slice(-8).map(r => `<div class="wb"><div class="wl">Week ${r.w + 1} <small>${fmtD(r.from)} – ${fmtD(r.to)}</small></div><div class="wbars"><div class="b1" style="width:${Math.round(r.pl / mx * 100)}%"></div><div class="b2" style="width:${Math.round(r.ac / mx * 100)}%"></div></div><div class="wv">${fmtM(r.ac)} of ${fmtM(r.pl)}</div></div>`).join('')}<p class="muted" style="font-size:.8rem;margin:8px 0 0"><span class="lg l1"></span>Planned (to yesterday) <span class="lg l2"></span>Actual</p></div>` : '';
+  /* missed days manager */
+  const mk = Object.keys(cfg.missed).sort();
+  const missedCard = `<div class="card"><h2 style="margin:0 0 2px;font:700 1.05rem var(--sans)">Missed days and days off</h2><p class="muted" style="margin:0 0 8px;font-size:.88rem">Mark days you cannot study, such as travel or illness, including days ahead. The schedule moves on and the finish date updates.</p>
+    <div class="rng"><div><label for="mf">From</label><input type="date" id="mf" min="${esc(cfg.start)}"></div><div><label for="mt">To (optional)</label><input type="date" id="mt" min="${esc(cfg.start)}"></div><button class="btn ghost" id="madd">Mark missed</button></div><p class="muted" id="mmsg" role="status" style="font-size:.85rem"></p>
+    ${mk.length ? `<div class="chips">${mk.map(k => `<button class="chip" data-un="${k}" aria-label="Remove ${k}">${fmtDW(dayOf(k))} ✕</button>`).join('')}</div>` : '<p class="muted" style="font-size:.88rem">No missed days marked.</p>'}</div>`;
+  /* upcoming schedule grouped by week */
+  const WK = 7 * 86400000, byW = {};
+  S.out.forEach(e => { const w = Math.floor((e.d - P.start) / WK); (byW[w] = byW[w] || []).push(e); });
+  const curW = Math.max(0, Math.floor((P.t - P.start) / WK));
+  const sched = Object.keys(byW).map(Number).sort((a, b) => a - b).map(w => {
+    const es = byW[w], tot = es.reduce((a, e) => a + e.mins, 0), a = addDays(P.start, w * 7);
+    return `<details class="wk${w === curW ? ' now' : ''}"${w === curW ? ' open' : ''}><summary><h3>Week ${w + 1} <small>${fmtD(a)} – ${fmtD(addDays(a, 6))} · ${fmtH(tot)} planned</small></h3></summary>
+      <ul class="pl">${es.map(e => `<li class="dayli"><div><b>${fmtDW(e.d)}</b> <span class="muted" style="display:inline">${fmtM(e.mins)}</span><ul class="sub">${e.parts.map(p => partRow(p)).join('')}</ul></div></li>`).join('')}</ul></details>`;
+  }).join('');
+  const doneList = S.doneItems.length ? `<details class="wk"><summary><h3>Completed <small>${S.doneItems.length} item${S.doneItems.length > 1 ? 's' : ''}</small></h3></summary><ul class="pl">${S.doneItems.map(i => `<li class="done"><span class="ck">✓</span><div>${i.kind === 'ch' ? `<a href="#/ch/${i.n}"><b>${i.short}.</b> ${esc(i.label)}</a>` : `<b>${esc(i.short)}</b> <span class="muted" style="display:inline">${esc(i.label)}</span>`}</div></li>`).join('')}</ul></details>` : '';
+  app.innerHTML = `<header class="top"><h1>Study plan</h1><p>${esc(PLAN_SCOPES[cfg.scope].label)} · ${cfg.hpw} hours a week on ${cfg.days.length} day${cfg.days.length > 1 ? 's' : ''} · from ${fmtD(P.start)}</p></header>
+  <div class="card"><div class="stats3"><div><b>${S.finish ? fmtD(S.finish) : 'Done'}</b><span>estimated finish</span></div><div><b>${pct}%</b><span>of plan complete</span></div><div><b>${fmtH(P.actual)}</b><span>studied of ${fmtH(P.planned)} planned</span></div></div>
+  <div class="pbar" role="img" aria-label="${pct}% of the plan complete"><i style="width:${pct}%"></i></div>
+  <div class="note ${track[0]}" role="status">${esc(track[1])}</div>
+  ${S.finish ? `<p style="margin:10px 0 0;font-size:.92rem"><b>Finish: ${fmtFull(S.finish)}</b>, ${slipTxt}.</p>` : ''}${examNote}
+  <p class="muted" style="font-size:.82rem;margin:8px 0 0">${chDone} of ${chTotal} chapters covered by logged time. ${Math.round(CARD_SHARE * 100)}% of each day is for flashcards and missed questions. Chapter times are estimates.</p>
+  <div class="actions"><button class="btn ghost" id="pics">Add to calendar</button><a class="btn ghost" href="#/plan/edit">Change plan</a><button class="btn ghost" id="pbk">Back up</button><button class="btn ghost" id="pdel">Remove plan</button></div></div>
+  ${today}${recent}${weeksCard}${missedCard}
+  <section aria-label="Schedule"><h2 style="font:700 1.05rem var(--sans);margin:18px 0 4px">Schedule from today</h2>${sched || '<p class="muted">Nothing left to schedule.</p>'}${doneList}</section>`;
+  app.querySelectorAll('[data-day]').forEach(b => b.onclick = () => daySheet(cfg, b.dataset.day));
+  app.querySelectorAll('[data-un]').forEach(b => b.onclick = () => { const c = planNorm(cfg); delete c.missed[b.dataset.un]; LS.set('plan', c); viewPlan(); });
+  const tl = document.getElementById('tlog'); if (tl) tl.onclick = () => daySheet(cfg, tk);
+  const tm = document.getElementById('tmis'); if (tm) tm.onclick = () => { const c = planNorm(cfg); if (c.missed[tk]) delete c.missed[tk]; else { delete c.log[tk]; c.missed[tk] = true; } LS.set('plan', c); viewPlan(); };
+  document.getElementById('madd').onclick = () => {
+    const f = document.getElementById('mf').value, t = document.getElementById('mt').value || f, msg = document.getElementById('mmsg');
+    if (!f) { msg.textContent = 'Choose the first missed day.'; return; }
+    if (t < f) { msg.textContent = 'The end date must be on or after the first day.'; return; }
+    if (f < cfg.start) { msg.textContent = 'Choose a date on or after your start date.'; return; }
+    const c = planNorm(cfg); let n = 0;
+    for (let d = dayOf(f); isoDay(d) <= t && n < 90; d = addDays(d, 1), n++) { const k = isoDay(d); delete c.log[k]; c.missed[k] = true; }
+    LS.set('plan', c); viewPlan();
+  };
+  document.getElementById('pics').onclick = () => planIcs(P, cfg);
+  document.getElementById('pbk').onclick = backupSheet;
+  document.getElementById('pdel').onclick = () => { if (confirm('Remove your study plan, including the time you have logged? Your reading and practice progress stays.')) { try { localStorage.removeItem('lin:plan'); } catch (e) {} viewPlan(); } };
+}
+
 async function route() {
   document.querySelectorAll('.sheet').forEach(s => s.remove());
   const raw = location.hash.replace(/^#/, '') || '/';
@@ -807,6 +1137,7 @@ async function route() {
       case 'search': return await viewSearch(params.get('q'));
       case 'mock': if (parts[1] === 'run') return await viewMockRun(); if (parts[1] === 'result') return await viewMockResult(); return viewMockSetup();
       case 'cards': if (parts[1] === 'run') return CS ? renderCard() : viewCards(); return viewCards();
+      case 'plan': return viewPlan(parts[1] === 'edit');
       case 'progress': return viewProgress();
       default: return notFound();
     }

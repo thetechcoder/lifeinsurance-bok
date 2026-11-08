@@ -10,7 +10,7 @@
 "n": 1,
 "title": "The Nature and Purpose of Insurance",
 "text": true,
-"words": 5495,
+"words": 5451,
 "q": 6,
 "mcq": 0
 },
@@ -18,7 +18,7 @@
 "n": 2,
 "title": "Fundamental Principles of Insurance",
 "text": true,
-"words": 8328,
+"words": 8227,
 "q": 10,
 "mcq": 5
 },
@@ -26,7 +26,7 @@
 "n": 3,
 "title": "Insurance Contract Law",
 "text": true,
-"words": 9451,
+"words": 9456,
 "q": 10,
 "mcq": 5
 },
@@ -34,7 +34,7 @@
 "n": 4,
 "title": "The Nigerian Insurance Regulatory Framework",
 "text": true,
-"words": 6350,
+"words": 6415,
 "q": 10,
 "mcq": 5
 }
@@ -50,7 +50,7 @@
 "n": 5,
 "title": "Introduction to Life Assurance: Concepts and Terminology",
 "text": true,
-"words": 9879,
+"words": 9795,
 "q": 11,
 "mcq": 6
 },
@@ -58,7 +58,7 @@
 "n": 6,
 "title": "Life Insurance Product Types: A Comprehensive Survey",
 "text": true,
-"words": 10398,
+"words": 10298,
 "q": 11,
 "mcq": 6
 },
@@ -66,7 +66,7 @@
 "n": 7,
 "title": "Group Life Insurance",
 "text": true,
-"words": 8385,
+"words": 8301,
 "q": 11,
 "mcq": 6
 },
@@ -74,7 +74,7 @@
 "n": 8,
 "title": "Annuities and Retirement Income Products",
 "text": true,
-"words": 5660,
+"words": 5578,
 "q": 11,
 "mcq": 6
 },
@@ -82,7 +82,7 @@
 "n": 9,
 "title": "Takaful: Islamic Insurance in Nigeria",
 "text": true,
-"words": 7742,
+"words": 7665,
 "q": 10,
 "mcq": 5
 },
@@ -90,7 +90,7 @@
 "n": 10,
 "title": "Life Insurance Product Development and Pricing",
 "text": true,
-"words": 7896,
+"words": 7817,
 "q": 10,
 "mcq": 5
 }
@@ -106,7 +106,7 @@
 "n": 11,
 "title": "Life Assurance Underwriting: Principles and Best Practices",
 "text": true,
-"words": 9540,
+"words": 9494,
 "q": 10,
 "mcq": 5
 },
@@ -114,7 +114,7 @@
 "n": 12,
 "title": "Life Assurance Claims Management",
 "text": true,
-"words": 9080,
+"words": 9058,
 "q": 10,
 "mcq": 5
 },
@@ -122,7 +122,7 @@
 "n": 13,
 "title": "Actuarial Concepts for Insurance Professionals",
 "text": true,
-"words": 8517,
+"words": 8465,
 "q": 10,
 "mcq": 5
 },
@@ -130,7 +130,7 @@
 "n": 14,
 "title": "Reinsurance in Life Insurance",
 "text": true,
-"words": 7836,
+"words": 7792,
 "q": 10,
 "mcq": 5
 },
@@ -138,7 +138,7 @@
 "n": 15,
 "title": "Enterprise Risk Management for Life Insurance Companies",
 "text": true,
-"words": 9224,
+"words": 9143,
 "q": 10,
 "mcq": 5
 }
@@ -154,7 +154,7 @@
 "n": 16,
 "title": "Distribution Channels and Intermediaries",
 "text": true,
-"words": 7729,
+"words": 7731,
 "q": 10,
 "mcq": 5
 },
@@ -162,7 +162,7 @@
 "n": 17,
 "title": "Insurance Sales Agencies: Structure, Management, and Best Practices",
 "text": true,
-"words": 7275,
+"words": 7224,
 "q": 10,
 "mcq": 5
 },
@@ -170,7 +170,7 @@
 "n": 18,
 "title": "Insurance Brokerage in Nigeria",
 "text": true,
-"words": 8065,
+"words": 8012,
 "q": 10,
 "mcq": 5
 },
@@ -178,7 +178,7 @@
 "n": 19,
 "title": "Product Marketing: Strategy, Execution, and the Nigerian Market",
 "text": true,
-"words": 7644,
+"words": 7598,
 "q": 10,
 "mcq": 5
 },
@@ -186,7 +186,7 @@
 "n": 20,
 "title": "Customer Service Excellence and Customer Acquisition",
 "text": true,
-"words": 7575,
+"words": 7514,
 "q": 10,
 "mcq": 5
 },
@@ -194,7 +194,7 @@
 "n": 21,
 "title": "Market Conduct, Ethics, and Consumer Protection",
 "text": true,
-"words": 8128,
+"words": 8112,
 "q": 10,
 "mcq": 5
 },
@@ -202,7 +202,7 @@
 "n": 22,
 "title": "Micro-Insurance and Financial Inclusion",
 "text": true,
-"words": 7890,
+"words": 7830,
 "q": 10,
 "mcq": 5
 }
@@ -218,7 +218,7 @@
 "n": 23,
 "title": "Insurance Funds: Investment and Asset-Liability Management",
 "text": true,
-"words": 7268,
+"words": 7233,
 "q": 10,
 "mcq": 5
 },
@@ -226,7 +226,7 @@
 "n": 24,
 "title": "Corporate Governance, Solvency, and Financial Reporting",
 "text": true,
-"words": 6938,
+"words": 6901,
 "q": 10,
 "mcq": 5
 },
@@ -234,7 +234,7 @@
 "n": 25,
 "title": "Life Insurance and Personal Financial Planning",
 "text": true,
-"words": 6574,
+"words": 6526,
 "q": 10,
 "mcq": 5
 },
@@ -242,7 +242,7 @@
 "n": 26,
 "title": "Revenue Architecture and Income Stream Management",
 "text": true,
-"words": 6724,
+"words": 6698,
 "q": 10,
 "mcq": 5
 },
@@ -250,7 +250,7 @@
 "n": 27,
 "title": "Strategy and Research Function in a Life Insurance Company",
 "text": true,
-"words": 7613,
+"words": 7556,
 "q": 10,
 "mcq": 5
 }
@@ -266,7 +266,7 @@
 "n": 28,
 "title": "Insurtech and Digital Innovation in Nigerian Life Insurance",
 "text": true,
-"words": 6793,
+"words": 6742,
 "q": 10,
 "mcq": 5
 },
@@ -274,7 +274,7 @@
 "n": 29,
 "title": "Policy Administration Systems (PAS) for Life Insurance",
 "text": true,
-"words": 7959,
+"words": 7928,
 "q": 10,
 "mcq": 5
 },
@@ -282,7 +282,7 @@
 "n": 30,
 "title": "Leveraging Technology to Drive Sales, Operations, and Customer Service",
 "text": true,
-"words": 6981,
+"words": 6941,
 "q": 10,
 "mcq": 5
 },
@@ -290,7 +290,7 @@
 "n": 31,
 "title": "Artificial Intelligence: Use Cases in Life Insurance",
 "text": true,
-"words": 6720,
+"words": 6677,
 "q": 10,
 "mcq": 5
 },
@@ -298,7 +298,7 @@
 "n": 32,
 "title": "Data Privacy in the Life Insurance Industry",
 "text": true,
-"words": 7120,
+"words": 7085,
 "q": 10,
 "mcq": 5
 },
@@ -306,7 +306,7 @@
 "n": 33,
 "title": "Emerging Risks, Compulsory Insurance, and the Industry Outlook",
 "text": true,
-"words": 6480,
+"words": 6445,
 "q": 10,
 "mcq": 5
 }
@@ -322,7 +322,7 @@
 "n": 34,
 "title": "Structuring the Life Insurance Organization",
 "text": true,
-"words": 7332,
+"words": 7295,
 "q": 10,
 "mcq": 5
 },
@@ -330,7 +330,7 @@
 "n": 35,
 "title": "Human Capital, Culture, and Professional Development",
 "text": true,
-"words": 7501,
+"words": 7455,
 "q": 10,
 "mcq": 5
 },
@@ -338,7 +338,7 @@
 "n": 36,
 "title": "Accessing Industry Research, Data, and Competitive Intelligence",
 "text": true,
-"words": 8163,
+"words": 8127,
 "q": 10,
 "mcq": 5
 }
@@ -354,7 +354,7 @@
 "n": 37,
 "title": "Comprehensive Glossary of Insurance and Life Assurance Terms",
 "text": true,
-"words": 13379,
+"words": 13377,
 "q": 0,
 "mcq": 0
 },
@@ -362,7 +362,7 @@
 "n": 38,
 "title": "CIIN Examination Preparation Guide",
 "text": true,
-"words": 6340,
+"words": 6271,
 "q": 0,
 "mcq": 0
 },
@@ -370,7 +370,7 @@
 "n": 39,
 "title": "Regulatory Reference Index and Bibliography",
 "text": true,
-"words": 6572,
+"words": 6618,
 "q": 0,
 "mcq": 0
 }
@@ -381,22 +381,22 @@
 {
 "key": "front",
 "title": "Front Matter",
-"words": 3220
+"words": 3192
 },
 {
 "key": "app1",
-"title": "Appendix 1 — Technical Reference Tables",
-"words": 4192
+"title": "Appendix 1: Technical Reference Tables",
+"words": 4159
 },
 {
 "key": "app2",
-"title": "Appendix 2 — Specimen Documents",
-"words": 6448
+"title": "Appendix 2: Specimen Documents",
+"words": 6452
 },
 {
 "key": "app3",
-"title": "Appendix 3 — Regulatory Instruments Log",
-"words": 6355
+"title": "Appendix 3: Regulatory Instruments Log",
+"words": 6360
 }
 ]
 }
